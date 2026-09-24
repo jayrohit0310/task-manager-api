@@ -13,9 +13,14 @@ const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 
-app.use(cors());
-
 const PORT = process.env.PORT || 5000;
+
+
+// ==========================================
+// CORS
+// ==========================================
+
+app.use(cors());
 
 
 // ==========================================
@@ -36,7 +41,7 @@ app.use(logger);
 // AUTHENTICATION ROUTES
 // ==========================================
 
-// These routes are public
+// Public routes
 // POST /auth/register
 // POST /auth/login
 
@@ -48,7 +53,12 @@ app.use("/auth", authRoutes);
 // ==========================================
 
 // JWT authentication is required
-// for every task route.
+// for all task routes.
+//
+// GET    /tasks
+// POST   /tasks
+// PUT    /tasks/:id
+// DELETE /tasks/:id
 
 app.use(
     "/tasks",
@@ -62,15 +72,10 @@ app.use(
 // ==========================================
 
 app.use((req, res) => {
-
     res.status(404).json({
-
         success: false,
-
         message: "Route Not Found"
-
     });
-
 });
 
 
@@ -87,7 +92,6 @@ app.use(errorHandler);
 
 mongoose
     .connect(process.env.MONGO_URI)
-
     .then(() => {
 
         console.log(
@@ -103,7 +107,6 @@ mongoose
         });
 
     })
-
     .catch((error) => {
 
         console.error(

@@ -1,17 +1,37 @@
 const Task = require("../models/Task");
+const cache = require("../cache");
 
+// ==========================================
+// GET ALL TASKS
 // GET /tasks
+// ==========================================
+
 const getAllTasks = async (req, res, next) => {
 
     try {
 
+        const cachedTasks = cache.get("all_tasks");
+
+        if (cachedTasks) {
+
+            console.log("CACHE HIT");
+
+            return res.status(200).json(cachedTasks);
+        }
+
+        console.log("CACHE MISS");
+
         const tasks = await Task.find();
 
-        res.status(200).json({
+        const responseData = {
             success: true,
             count: tasks.length,
             data: tasks
-        });
+        };
+
+        cache.set("all_tasks", responseData);
+
+        res.status(200).json(responseData);
 
     } catch (error) {
 
@@ -22,12 +42,18 @@ const getAllTasks = async (req, res, next) => {
 };
 
 
+// ==========================================
+// GET TASK BY ID
 // GET /tasks/:id
+// ==========================================
+
 const getTaskById = async (req, res, next) => {
 
     try {
 
-        const task = await Task.findById(req.params.id);
+        const task = await Task.findById(
+            req.params.id
+        );
 
         if (!task) {
 
@@ -52,12 +78,23 @@ const getTaskById = async (req, res, next) => {
 };
 
 
+// ==========================================
+// CREATE TASK
 // POST /tasks
+// ==========================================
+
 const createTask = async (req, res, next) => {
 
     try {
 
         const task = await Task.create(req.body);
+
+        // Invalidate cached task list
+        cache.del("all_tasks");
+
+        console.log(
+            "CACHE INVALIDATED - Task created"
+        );
 
         res.status(201).json({
             success: true,
@@ -74,7 +111,11 @@ const createTask = async (req, res, next) => {
 };
 
 
+// ==========================================
+// UPDATE TASK
 // PUT /tasks/:id
+// ==========================================
+
 const updateTask = async (req, res, next) => {
 
     try {
@@ -97,6 +138,13 @@ const updateTask = async (req, res, next) => {
 
         }
 
+        // Invalidate cached task list
+        cache.del("all_tasks");
+
+        console.log(
+            "CACHE INVALIDATED - Task updated"
+        );
+
         res.status(200).json({
             success: true,
             message: "Task updated successfully",
@@ -112,7 +160,11 @@ const updateTask = async (req, res, next) => {
 };
 
 
+// ==========================================
+// DELETE TASK
 // DELETE /tasks/:id
+// ==========================================
+
 const deleteTask = async (req, res, next) => {
 
     try {
@@ -130,6 +182,13 @@ const deleteTask = async (req, res, next) => {
 
         }
 
+        // Invalidate cached task list
+        cache.del("all_tasks");
+
+        console.log(
+            "CACHE INVALIDATED - Task deleted"
+        );
+
         res.status(200).json({
             success: true,
             message: "Task deleted successfully",
@@ -144,6 +203,10 @@ const deleteTask = async (req, res, next) => {
 
 };
 
+
+// ==========================================
+// EXPORT CONTROLLERS
+// ==========================================
 
 module.exports = {
     getAllTasks,
