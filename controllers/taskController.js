@@ -1,6 +1,9 @@
 const Task = require("../models/Task");
 const cache = require("../cache");
 
+const taskEvents = require("../events");
+
+
 // ==========================================
 // GET ALL TASKS
 // GET /tasks
@@ -83,32 +86,35 @@ const getTaskById = async (req, res, next) => {
 // POST /tasks
 // ==========================================
 
+
 const createTask = async (req, res, next) => {
-
     try {
-
         const task = await Task.create(req.body);
 
-        // Invalidate cached task list
+        // Invalidate the cached task list
         cache.del("all_tasks");
 
+        // Log when the API response is prepared
         console.log(
-            "CACHE INVALIDATED - Task created"
+            "[API] Response sent at:",
+            new Date().toISOString()
         );
 
+        // Send the response without waiting for notification completion
         res.status(201).json({
             success: true,
             message: "Task created successfully",
             data: task
         });
 
+        // Trigger the notification event
+        taskEvents.emit("task-created", task);
+
     } catch (error) {
-
         next(error);
-
     }
-
 };
+
 
 
 // ==========================================
