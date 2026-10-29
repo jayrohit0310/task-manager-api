@@ -2,10 +2,8 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// Register background event listeners
 require("./listeners");
 
-// Import the Express application
 const app = require("./app");
 
 const PORT = process.env.PORT || 5000;

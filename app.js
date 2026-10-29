@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
@@ -25,6 +26,7 @@ app.use("/auth", authRoutes);
 
 // PROTECTED TASK ROUTES
 app.use("/tasks", authMiddleware, taskRoutes);
+app.use("/api/ai", aiRoutes);
 
 // 404 HANDLER
 app.use((req, res) => {
