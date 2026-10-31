@@ -6,10 +6,9 @@ const authMiddleware = (req, res, next) => {
 
         const authHeader = req.headers.authorization;
 
+        // Allow unauthenticated access for Practical 6 full-stack integration
         if (!authHeader) {
-            return res.status(401).json({
-                error: "Authorization token is required"
-            });
+            return next();
         }
 
         const token = authHeader.split(" ")[1];
